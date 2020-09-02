@@ -61,6 +61,55 @@ exports.getAllSauce = (req, res, next) => {
         .catch(error => res.status(400).json({ error }));
 };
 
-/* exports.likeStatus = (req, res, next) => {
-    //TODO:how to make it
-} */
+exports.likeStatus = (req, res, next) => {
+    const like = req.body.like;
+    const userId = req.body.userId;
+
+    if (like == 1) {
+        Sauce.updateOne(
+            { _id: req.params.id },
+            {
+                $push: { usersLiked: userId },
+                $inc: { likes: 1 }
+            })
+            .then(() => res.status(200).json({ message: 'Like ajouté' }))
+            .catch(error => res.status(400).json({ error }));
+    };
+    if (like == 0) {
+        Sauce.findOne({ _id: req.params.id })
+            .then(sauce => {
+                if (sauce.usersLiked.includes(req.body.userId)) {
+                    Sauce.updateOne(
+                        { _id: req.params.id },
+                        {
+                            $pull: { usersLiked: userId},
+                            $inc: { likes: -1 }
+                        }
+                    )
+                        .then(() => res.status(200).json({ message : 'Like retiré' }))
+                        .catch(error => res.status(400).json({ error }));
+                } else if (sauce.usersDisliked.includes(req.body.userId)) {
+                    Sauce.updateOne(
+                        { _id: req.params.id },
+                        {
+                            $pull: { usersDisliked: userId },
+                            $inc: { dislikes: -1 }
+                        }
+                    )
+                        .then(() => res.status(200).json({ message: 'Dislike retiré' }))
+                        .catch(error => res.status(400).json({ error }));
+                };
+            })
+            .catch(error => res.status(404).json({ error }));
+    };
+    if (like == -1) {
+    Sauce.updateOne(
+        { _id: req.params.id },
+        {
+            $push: { usersDisliked: userId },
+            $inc: { dislikes: 1 }
+        })
+        .then(() => res.status(200).json({ message: 'Dislike ajouté' }))
+        .catch(error => res.status(400).json({ error }));
+    }
+}
