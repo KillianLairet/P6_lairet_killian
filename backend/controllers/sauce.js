@@ -1,6 +1,7 @@
 const Sauce = require('../models/Sauces');
 const fs = require('fs');
 
+// CREATE
 exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
@@ -13,6 +14,7 @@ exports.createSauce = (req, res, next) => {
         .catch(error => res.status(400).json({ error }));
 };
 
+// UPDATE
 exports.modifySauce = (req, res, next) => {
     const sauceObject = req.file ?
     {
@@ -36,6 +38,7 @@ exports.modifySauce = (req, res, next) => {
     }
 };
 
+// DELETE
 exports.deleteSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => {
@@ -49,22 +52,26 @@ exports.deleteSauce = (req, res, next) => {
         .catch(error => res.status(404).json({ error }));
 };
 
+// READ ONE
 exports.getOneSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
         .then(sauce => res.status(200).json(sauce))
         .catch(error => res.status(404).json({ error }));
 };
 
+// READ ALL
 exports.getAllSauce = (req, res, next) => {
     Sauce.find()
         .then(sauces => res.status(200).json(sauces))
         .catch(error => res.status(400).json({ error }));
 };
 
+// LIKE & DISLIKE
 exports.likeStatus = (req, res, next) => {
     const like = req.body.like;
     const userId = req.body.userId;
 
+    // LIKE
     if (like == 1) {
         Sauce.updateOne(
             { _id: req.params.id },
@@ -75,6 +82,7 @@ exports.likeStatus = (req, res, next) => {
             .then(() => res.status(200).json({ message: 'Like ajouté' }))
             .catch(error => res.status(400).json({ error }));
     };
+    // NEUTRAL
     if (like == 0) {
         Sauce.findOne({ _id: req.params.id })
             .then(sauce => {
@@ -102,6 +110,7 @@ exports.likeStatus = (req, res, next) => {
             })
             .catch(error => res.status(404).json({ error }));
     };
+    // DISLIKE
     if (like == -1) {
     Sauce.updateOne(
         { _id: req.params.id },
